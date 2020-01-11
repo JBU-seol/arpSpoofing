@@ -43,8 +43,8 @@ struct arp_hdr{
 #define PACKETSIZE sizeof(struct libnet_ethernet_hdr)+sizeof(struct arp_hdr)
 struct spoofingInfo{
     unsigned char pkt[PACKETSIZE];
-    unsigned char broad_arr[6] = {0xff,};
-    unsigned char null_arr[6] = {0x00, };
+    unsigned char broad_arr[6] = {0xff,0xff,0xff,0xff,0xff,0xff};
+    unsigned char null_arr[6] = {0x00,0x00,0x00,0x00,0x00,0x00 };
     unsigned char hostip[4];
     unsigned char hostmac[6];
     unsigned char senderip1[4];

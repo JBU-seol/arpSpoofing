@@ -36,20 +36,14 @@ int GetIpArr(unsigned char* ip,char* argv){
     return 0;
 }
 
-void SetBasicArp(unsigned char* pkt){
+void SetAddArp(unsigned char* pkt, unsigned char* dmac, unsigned char* smac, unsigned char* sip, unsigned char* dmac2, unsigned char* dip){
     struct libnet_ethernet_hdr* eth_p=reinterpret_cast<struct libnet_ethernet_hdr*>(pkt);
-    struct arp_hdr* arp_p=reinterpret_cast<struct arp_hdr*>(reinterpret_cast<char*>(eth_p));
+    struct arp_hdr* arp_p=reinterpret_cast<struct arp_hdr*>(pkt+sizeof(struct libnet_ethernet_hdr));
     eth_p->ether_type=ntohs(0x0806);
     arp_p->ar_hrd=ntohs(0x0001);
     arp_p->ar_pro=ntohs(0x0800);
     arp_p->ar_hln=0x06;
     arp_p->ar_pln=0x04;
-}
-
-void SetAddArp(unsigned char* pkt, unsigned char* dmac, unsigned char* smac, unsigned char* sip, unsigned char* dmac2, unsigned char* dip){
-    SetBasicArp(pkt);
-    struct libnet_ethernet_hdr* eth_p=reinterpret_cast<struct libnet_ethernet_hdr*>(pkt);
-    struct arp_hdr* arp_p=reinterpret_cast<struct arp_hdr*>(reinterpret_cast<char*>(eth_p));
     memcpy(eth_p->ether_dhost,dmac,6);
     memcpy(eth_p->ether_shost,smac,6);
     memcpy(arp_p->sender_mac,smac,6);

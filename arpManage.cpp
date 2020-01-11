@@ -3,7 +3,7 @@
 
 arpManage::arpManage(){
     std::cout<<"arpManage Start"<<std::endl;
-    handle = pcap_open_live("wlan0",BUFSIZ,1,1,errbuf);
+    handle = pcap_open_live("eth0",BUFSIZ,1,1,errbuf);
 }
 arpManage::~arpManage(){ }
 
@@ -21,6 +21,7 @@ void arpManage::infection(struct spoofingInfo ah){
     if(pcap_sendpacket(handle, ah.pkt, sizeof(ah.pkt))){
         printf("Packet send 2 error !!\n");
     }
+
     while(pcap_next_ex(handle, &header, &packet)){
         length=header->caplen;
         ep = reinterpret_cast<struct libnet_ethernet_hdr*>(const_cast<u_char*>(packet));
